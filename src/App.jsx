@@ -22,6 +22,52 @@ import { useUser, SignInButton, UserButton } from '@clerk/clerk-react';
 function Dashboard() {
   const { user } = useUser();
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // State for the input field and loading button
+  const [targetUrl, setTargetUrl] = useState('');
+  const [isScanning, setIsScanning] = useState(false);
+
+  // Function to send the data to your Render backend
+  const handleRunAudit = async () => {
+    if (!targetUrl) {
+      alert("Please enter a URL to audit.");
+      return;
+    }
+
+    setIsScanning(true);
+
+    try {
+      // Pulls the live Render URL you saved in Vercel Environment Variables
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:10000';
+      
+      const response = await fetch(`${baseUrl}/api/audit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          url: targetUrl,
+          userId: user?.id,
+          userEmail: user?.primaryEmailAddress?.emailAddress 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Audit complete:", data);
+      alert("Audit triggered successfully! Check your browser console for the backend response.");
+      
+    } catch (error) {
+      console.error("Audit failed to send:", error);
+      alert("Failed to connect to the backend. Make sure your Render server is awake and CORS is configured.");
+    } finally {
+      setIsScanning(false);
+      setTargetUrl(''); // Clear the input after running
+    }
+  };
 
   // Render dynamic dashboard content based on active tab
   const renderContent = () => {
@@ -49,14 +95,21 @@ function Dashboard() {
               <p className="text-zinc-500 text-lg max-w-md mx-auto mb-8">
                 You haven't run any autonomous audits yet. Enter a staging or production URL to begin your first deep crawl.
               </p>
+              
               <div className="flex max-w-lg mx-auto gap-3">
                 <input 
                   type="url" 
+                  value={targetUrl}
+                  onChange={(e) => setTargetUrl(e.target.value)}
                   placeholder="https://staging.your-app.com" 
                   className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-zinc-950 transition-shadow"
                 />
-                <button className="bg-zinc-950 hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-sm active:scale-95">
-                  Run Audit
+                <button 
+                  onClick={handleRunAudit}
+                  disabled={isScanning}
+                  className="bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-sm active:scale-95"
+                >
+                  {isScanning ? 'Scanning...' : 'Run Audit'}
                 </button>
               </div>
             </div>
