@@ -12,9 +12,6 @@ import { useUser, SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/c
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://auditlens-backend-v8hp.onrender.com';
 
-// ==========================================
-// 1. DASHBOARD COMPONENT
-// ==========================================
 function Dashboard() {
   const { user } = useUser();
   const navigate = useNavigate();
@@ -50,9 +47,12 @@ function Dashboard() {
         })
       });
 
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+      }
+
       if (data.reportId) {
         pollReportStatus(data.reportId);
       } else {
@@ -61,7 +61,7 @@ function Dashboard() {
       
     } catch (error) {
       console.error("Audit failed:", error);
-      alert("Failed to trigger audit. Please check server logs or CORS configuration.");
+      alert(`Audit error: ${error.message}`);
       setIsScanning(false);
     }
   };
@@ -275,9 +275,6 @@ function Dashboard() {
   );
 }
 
-// ==========================================
-// 2. LANDING PAGE COMPONENT
-// ==========================================
 function LandingPage() {
   const navigate = useNavigate();
   const heroWords = ['audit', 'crawl', 'validate', 'scale'];
@@ -337,9 +334,6 @@ function LandingPage() {
   );
 }
 
-// ==========================================
-// 3. MAIN ROUTER WRAPPER
-// ==========================================
 export default function App() {
   return (
     <BrowserRouter>
