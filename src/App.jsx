@@ -42,15 +42,15 @@ function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           url: targetUrl,
-          userId: user?.id,
-          userEmail: user?.primaryEmailAddress?.emailAddress 
+          userId: user?.id || 'guest_user',
+          userEmail: user?.primaryEmailAddress?.emailAddress || 'guest@auditlens.me'
         })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || `HTTP error! Status: ${response.status}`);
+        throw new Error(data.error || data.details || `HTTP error! Status: ${response.status}`);
       }
 
       if (data.reportId) {
