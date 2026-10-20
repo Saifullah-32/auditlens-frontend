@@ -279,7 +279,6 @@ function Dashboard() {
 // 2. LANDING PAGE COMPONENT
 // ==========================================
 function LandingPage() {
-  const { isSignedIn } = useUser();
   const navigate = useNavigate();
   const heroWords = ['audit', 'crawl', 'validate', 'scale'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
