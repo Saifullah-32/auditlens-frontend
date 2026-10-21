@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, 
@@ -6,13 +6,274 @@ import {
   Settings, 
   Activity, 
   Home, 
-  Loader2 
+  Loader2,
+  Play
 } from 'lucide-react';
 import { useUser, SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
 import ScanHistory from './ScanHistory';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://auditlens-backend-v8hp.onrender.com';
 
+// ----------------------------------------------------------------------
+// 3D ASCII PARTICLE BACKGROUND (Replicates the video's background)
+// ----------------------------------------------------------------------
+const ParticleGlobe = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    
+    const setCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    setCanvasSize();
+    window.addEventListener('resize', setCanvasSize);
+
+    // Create a spherical distribution of ASCII characters
+    const chars = ['0', '1', '+', '-', '.', '*', '|'];
+    const particles = Array.from({ length: 1200 }).map(() => {
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      const r = 350 + Math.random() * 250; // Radius range for a thick shell
+      return {
+        x: r * Math.sin(phi) * Math.cos(theta),
+        y: r * Math.sin(phi) * Math.sin(theta),
+        z: r * Math.cos(phi),
+        char: chars[Math.floor(Math.random() * chars.length)],
+        baseAlpha: 0.1 + Math.random() * 0.4
+      };
+    });
+
+    let angle = 0;
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '14px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      angle += 0.0015; // Speed of rotation
+      const sinA = Math.sin(angle);
+      const cosA = Math.cos(angle);
+      const cx = canvas.width / 2;
+      // Shift center up slightly to match the video layout
+      const cy = canvas.height / 2 - 100; 
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        
+        // Rotate around Y-axis
+        const rotX = p.x * cosA - p.z * sinA;
+        const rotZ = p.z * cosA + p.x * sinA;
+        const rotY = p.y;
+        
+        // Apply a slight static tilt on X-axis so we look down at it
+        const tiltX = -0.3;
+        const sinTilt = Math.sin(tiltX);
+        const cosTilt = Math.cos(tiltX);
+        const finalY = rotY * cosTilt - rotZ * sinTilt;
+        const finalZ = rotZ * cosTilt + rotY * sinTilt;
+
+        // 3D projection
+        const fov = 1000;
+        const zDepth = finalZ + fov;
+        
+        if (zDepth > 0) {
+          const scale = fov / zDepth;
+          const x2d = cx + rotX * scale;
+          const y2d = cy + finalY * scale;
+          
+          // Opacity fades out in the distance
+          const alpha = Math.max(0, Math.min(1, p.baseAlpha * (scale - 0.4)));
+          
+          ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+          ctx.fillText(p.char, x2d, y2d);
+        }
+      }
+      animationFrameId = requestAnimationFrame(render);
+    };
+    render();
+
+    return () => {
+      window.removeEventListener('resize', setCanvasSize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="absolute top-0 left-0 w-full h-[120vh] z-0 pointer-events-none" 
+      style={{ opacity: 0.6 }}
+    />
+  );
+};
+
+
+// ----------------------------------------------------------------------
+// LANDING PAGE (Replicates the animations and layout)
+// ----------------------------------------------------------------------
+function LandingPage() {
+  const navigate = useNavigate();
+  const heroWords = ['build', 'create', 'scale', 'ship'];
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  // Smooth fade transition for the changing word
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/health`).catch(() => {});
+    
+    const interval = setInterval(() => {
+      setFade(false); // trigger fade out
+      setTimeout(() => {
+        setCurrentWordIndex((prev) => (prev + 1) % heroWords.length);
+        setFade(true); // trigger fade in
+      }, 400); // 400ms transition time
+    }, 3000); // change word every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const stats = [
+    { value: '0 days', label: 'saved on builds', sub: 'NETFLIX' },
+    { value: '98%', label: 'faster deployment', sub: 'STRIPE' },
+    { value: '300%', label: 'throughput increase', sub: 'LINEAR' },
+    { value: '6x', label: 'faster to ship', sub: 'NOTION' },
+    { value: '20 days', label: 'saved on QA', sub: 'VERCEL' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white text-[#0a0a0a] font-sans antialiased flex flex-col relative overflow-x-hidden">
+      
+      {/* 3D Background Canvas */}
+      <ParticleGlobe />
+
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-zinc-100/50 py-4 transition-all">
+        <div className="w-[96%] max-w-[1400px] mx-auto flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="font-bold text-2xl tracking-tighter flex items-center">
+            AuditLens<span className="text-xs text-zinc-400 font-mono ml-1 align-top">™</span>
+          </button>
+          
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-500">
+            <a href="#features" className="hover:text-black transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-black transition-colors">How it works</a>
+            <a href="#developers" className="hover:text-black transition-colors">Developers</a>
+            <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+              <button onClick={() => navigate('/dashboard')} className="bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
+                Dashboard
+              </button>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-sm font-medium text-zinc-600 hover:text-black transition-colors mr-2">Sign in</button>
+              </SignInButton>
+              <SignInButton mode="modal">
+                <button className="bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors shadow-[0_0_15px_rgba(0,0,0,0.1)]">
+                  Start creating
+                </button>
+              </SignInButton>
+            </SignedOut>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="relative z-10 pt-48 pb-24 w-[96%] max-w-[1400px] mx-auto flex flex-col items-center justify-center text-center">
+        <p className="text-zinc-500 font-mono text-sm tracking-[0.2em] uppercase mb-8">
+          The platform for modern teams
+        </p>
+        
+        <h1 className="text-[5rem] md:text-[7.5rem] leading-[1.05] font-medium tracking-tighter mb-8 text-[#0a0a0a]">
+          The platform to <br />
+          <span className={`inline-block min-w-[300px] transition-all duration-400 ease-in-out ${fade ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            {heroWords[currentWordIndex]}
+          </span>
+        </h1>
+
+        <p className="text-xl md:text-2xl text-zinc-500 max-w-3xl mx-auto mb-12 font-normal leading-relaxed">
+          Your toolkit to stop configuring and start innovating. Securely build, deploy, and scale the best experiences.
+        </p>
+
+        <div className="flex items-center gap-4">
+          <SignedIn>
+            <button onClick={() => navigate('/dashboard')} className="bg-black hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium text-lg transition-all shadow-xl hover:shadow-2xl">
+              Go to Dashboard
+            </button>
+          </SignedIn>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="bg-black hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium text-lg transition-all shadow-xl hover:shadow-2xl">
+                Start free trial
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <button className="bg-white hover:bg-zinc-50 text-black border border-zinc-200 px-8 py-4 rounded-xl font-medium text-lg flex items-center gap-2 transition-all">
+            <Play className="w-5 h-5 fill-current" /> Watch demo
+          </button>
+        </div>
+      </main>
+
+      {/* Stats Section */}
+      <section className="relative z-10 w-full border-y border-zinc-100 bg-white/50 backdrop-blur-sm mt-12 py-10">
+        <div className="max-w-[1400px] mx-auto w-[96%] flex flex-wrap justify-between items-center gap-8">
+          {stats.map((stat, idx) => (
+            <div key={idx} className="flex flex-col items-center md:items-start text-center md:text-left">
+              <span className="text-4xl md:text-5xl font-medium tracking-tight mb-2">{stat.value}</span>
+              <span className="text-sm text-zinc-500 mb-1">{stat.label}</span>
+              <span className="text-[10px] font-mono text-zinc-400 tracking-wider uppercase">{stat.sub}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Capabilities Section Placeholder */}
+      <section className="relative z-10 w-full bg-white py-32">
+        <div className="max-w-[1400px] mx-auto w-[96%]">
+          <p className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-6">Capabilities</p>
+          <h2 className="text-5xl md:text-7xl font-medium tracking-tighter max-w-2xl mb-24 leading-tight">
+            Everything you need.<br/>Nothing you don't.
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-16">
+            <div className="border-t border-zinc-200 pt-8">
+              <span className="text-sm font-mono text-zinc-400 mb-4 block">01</span>
+              <h3 className="text-3xl font-medium mb-4">Instant Deployment</h3>
+              <p className="text-zinc-500 text-lg leading-relaxed">Push to production in seconds. Our edge network ensures your applications load instantly, anywhere in the world.</p>
+            </div>
+            <div className="border-t border-zinc-200 pt-8">
+              <span className="text-sm font-mono text-zinc-400 mb-4 block">02</span>
+              <h3 className="text-3xl font-medium mb-4">AI-Native Workflows</h3>
+              <p className="text-zinc-500 text-lg leading-relaxed">Build intelligent applications with built-in AI capabilities. From inference to training, everything scales automatically.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dark Section Placeholder */}
+      <section className="relative z-10 w-full bg-[#0a0a0a] text-white py-32">
+        <div className="max-w-[1400px] mx-auto w-[96%]">
+          <p className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-6">Process</p>
+          <h2 className="text-5xl md:text-7xl font-medium tracking-tighter max-w-2xl mb-24 leading-tight">
+            Three steps.<br/>Infinite possibilities.
+          </h2>
+        </div>
+      </section>
+
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------
+// DASHBOARD (Unchanged to protect your workflow)
+// ----------------------------------------------------------------------
 function Dashboard() {
   const { user } = useUser();
   const navigate = useNavigate();
@@ -269,65 +530,9 @@ function Dashboard() {
   );
 }
 
-function LandingPage() {
-  const navigate = useNavigate();
-  const heroWords = ['audit', 'crawl', 'validate', 'scale'];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/health`).catch(() => {});
-    const interval = setInterval(() => setCurrentWordIndex((prev) => (prev + 1) % heroWords.length), 2400);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-white text-zinc-950 font-sans antialiased flex flex-col">
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-zinc-100 py-6">
-        <div className="w-[96%] max-w-[1800px] mx-auto flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="font-bold text-3xl tracking-tighter text-left">
-            AuditLens<span className="text-sm text-zinc-400 font-mono">™</span>
-          </button>
-          <div className="flex items-center gap-6">
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-              <button onClick={() => navigate('/dashboard')} className="bg-zinc-950 text-white px-6 py-3 rounded-xl font-medium">
-                Dashboard
-              </button>
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="bg-zinc-950 text-white px-6 py-3 rounded-xl font-medium">Sign in</button>
-              </SignInButton>
-            </SignedOut>
-          </div>
-        </div>
-      </nav>
-
-      <section className="pt-36 pb-28 text-center mx-auto w-[96%] max-w-[1800px]">
-        <h1 className="text-7xl font-semibold tracking-tighter mb-8">
-          The platform to <span className="underline decoration-zinc-200">{heroWords[currentWordIndex]}</span>
-        </h1>
-        <p className="text-2xl text-zinc-500 max-w-3xl mx-auto mb-12">
-          Autonomous QA auditing built for modern engineering teams.
-        </p>
-
-        <SignedIn>
-          <button onClick={() => navigate('/dashboard')} className="bg-zinc-950 text-white px-10 py-5 rounded-2xl font-medium text-xl inline-flex items-center gap-3">
-            Go to Dashboard <ArrowRight className="w-6 h-6" />
-          </button>
-        </SignedIn>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="bg-zinc-950 text-white px-10 py-5 rounded-2xl font-medium text-xl inline-flex items-center gap-3">
-              Get Started <ArrowRight className="w-6 h-6" />
-            </button>
-          </SignInButton>
-        </SignedOut>
-      </section>
-    </div>
-  );
-}
-
+// ----------------------------------------------------------------------
+// MAIN APP ROUTER
+// ----------------------------------------------------------------------
 export default function App() {
   return (
     <BrowserRouter>
