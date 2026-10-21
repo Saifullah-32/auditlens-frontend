@@ -9,6 +9,7 @@ import {
   Loader2 
 } from 'lucide-react';
 import { useUser, SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
+import ScanHistory from './ScanHistory';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://auditlens-backend-v8hp.onrender.com';
 
@@ -190,14 +191,7 @@ function Dashboard() {
         );
 
       case 'scan-history':
-        return (
-          <div className="bg-white border border-zinc-200 rounded-[2rem] p-16 shadow-sm text-center">
-            <h3 className="text-2xl font-medium text-zinc-950 mb-3">Scan History</h3>
-            <p className="text-zinc-500 text-lg max-w-md mx-auto">
-              All scans conducted within your current session are displayed in the Overview tab.
-            </p>
-          </div>
-        );
+        return <ScanHistory />;
 
       case 'settings':
         return (
