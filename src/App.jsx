@@ -113,7 +113,8 @@ const ParticleGlobe = () => {
 // ----------------------------------------------------------------------
 function LandingPage() {
   const navigate = useNavigate();
-  const heroWords = ['build', 'create', 'scale', 'ship'];
+  // Updated words to match QA auditing niche
+  const heroWords = ['audit', 'validate', 'crawl', 'test'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -177,7 +178,7 @@ function LandingPage() {
       {/* Hero Section */}
       <main className="relative z-10 pt-48 pb-32 w-[92%] max-w-[1200px] mx-auto flex flex-col items-center justify-center text-center">
         <p className="text-zinc-500 font-medium text-[11px] tracking-[0.3em] uppercase mb-10">
-          THE PLATFORM FOR MODERN TEAMS
+          THE PLATFORM FOR MODERN ENGINEERING TEAMS
         </p>
         
         <h1 className="text-[5rem] md:text-[8rem] leading-[1.05] font-medium tracking-tighter mb-8 text-[#0a0a0a]">
@@ -188,7 +189,7 @@ function LandingPage() {
         </h1>
 
         <p className="text-xl md:text-[22px] text-zinc-500 max-w-3xl mx-auto mb-14 font-normal leading-relaxed">
-          Your toolkit to stop configuring and start innovating. Securely build, deploy, and scale the best experiences.
+          Your toolkit to stop manual testing and start shipping. Autonomously crawl, validate, and secure your web applications in seconds.
         </p>
 
         <div className="flex items-center gap-4">
@@ -210,44 +211,44 @@ function LandingPage() {
         </div>
       </main>
 
-      {/* Stats Section */}
+      {/* Stats Section - Updated for QA/Auditing */}
       <section className="relative z-10 w-full bg-white pt-24 pb-32">
         <div className="max-w-[1200px] mx-auto w-[92%] flex flex-wrap justify-between items-start gap-8">
           
           <div className="flex flex-col items-start">
-            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">0 days</span>
-            <span className="text-[15px] text-zinc-500 mb-2">saved on builds</span>
-            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">NETFLIX</span>
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">100+</span>
+            <span className="text-[15px] text-zinc-500 mb-2">hours saved on QA</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">STARTUPS</span>
           </div>
 
           <div className="flex flex-col items-start">
-            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">98%</span>
-            <span className="text-[15px] text-zinc-500 mb-2">faster deployment</span>
-            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">STRIPE</span>
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">10x</span>
+            <span className="text-[15px] text-zinc-500 mb-2">faster bug detection</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">AGENCIES</span>
           </div>
 
           <div className="flex flex-col items-start">
-            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">300%</span>
-            <span className="text-[15px] text-zinc-500 mb-2">throughput increase</span>
-            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">LINEAR</span>
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">0</span>
+            <span className="text-[15px] text-zinc-500 mb-2">configuration required</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">PLUG & PLAY</span>
           </div>
 
           <div className="flex flex-col items-start">
-            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">6x</span>
-            <span className="text-[15px] text-zinc-500 mb-2">faster to ship</span>
-            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">NOTION</span>
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">99%</span>
+            <span className="text-[15px] text-zinc-500 mb-2">automated test coverage</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">ENTERPRISE</span>
           </div>
 
           <div className="flex flex-col items-start">
-            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">20 days</span>
-            <span className="text-[15px] text-zinc-500 mb-2">saved on QA</span>
-            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">VERCEL</span>
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">24/7</span>
+            <span className="text-[15px] text-zinc-500 mb-2">continuous monitoring</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">RELIABILITY</span>
           </div>
 
         </div>
       </section>
 
-      {/* Capabilities Section */}
+      {/* Capabilities Section - Updated for QA/Auditing */}
       <section className="relative z-10 w-full bg-white pb-32 pt-10">
         <div className="max-w-[1200px] mx-auto w-[92%]">
           <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-8">CAPABILITIES</p>
@@ -258,13 +259,13 @@ function LandingPage() {
           <div className="grid md:grid-cols-2 gap-x-20 gap-y-16">
             <div className="border-t border-zinc-200 pt-8">
               <span className="text-xs font-mono text-zinc-400 mb-5 block">01</span>
-              <h3 className="text-3xl font-medium mb-4 tracking-tight">Instant Deployment</h3>
-              <p className="text-zinc-500 text-[17px] leading-relaxed">Push to production in seconds. Our edge network ensures your applications load instantly, anywhere in the world.</p>
+              <h3 className="text-3xl font-medium mb-4 tracking-tight">Autonomous Crawling</h3>
+              <p className="text-zinc-500 text-[17px] leading-relaxed">Simply provide a target URL and watch as AuditLens maps your entire web application. We automatically identify all routes and pages without you writing a single test script.</p>
             </div>
             <div className="border-t border-zinc-200 pt-8">
               <span className="text-xs font-mono text-zinc-400 mb-5 block">02</span>
-              <h3 className="text-3xl font-medium mb-4 tracking-tight">AI-Native Workflows</h3>
-              <p className="text-zinc-500 text-[17px] leading-relaxed">Build intelligent applications with built-in AI capabilities. From inference to training, everything scales automatically.</p>
+              <h3 className="text-3xl font-medium mb-4 tracking-tight">Deep Functional Analysis</h3>
+              <p className="text-zinc-500 text-[17px] leading-relaxed">Instantly detect broken links, console warnings, and structural errors. Get detailed, actionable reports to fix functional issues before they reach your end users.</p>
             </div>
           </div>
         </div>
@@ -275,7 +276,7 @@ function LandingPage() {
         <div className="max-w-[1200px] mx-auto w-[92%]">
           <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-10">PROCESS</p>
           <h2 className="text-5xl md:text-[5.5rem] leading-[1.05] font-medium tracking-tighter max-w-4xl">
-            Three steps.<br/>Infinite possibilities.
+            Three steps.<br/>Zero bugs.
           </h2>
         </div>
       </section>
