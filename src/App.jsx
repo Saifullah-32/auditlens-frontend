@@ -15,7 +15,7 @@ import ScanHistory from './ScanHistory';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://auditlens-backend-v8hp.onrender.com';
 
 // ----------------------------------------------------------------------
-// 3D ASCII PARTICLE BACKGROUND (Replicates the video's background)
+// 3D ASCII PARTICLE BACKGROUND 
 // ----------------------------------------------------------------------
 const ParticleGlobe = () => {
   const canvasRef = useRef(null);
@@ -27,23 +27,23 @@ const ParticleGlobe = () => {
     
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Make canvas cover the hero section height
+      canvas.height = window.innerHeight * 1.2; 
     };
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
-    // Create a spherical distribution of ASCII characters
     const chars = ['0', '1', '+', '-', '.', '*', '|'];
-    const particles = Array.from({ length: 1200 }).map(() => {
+    const particles = Array.from({ length: 1000 }).map(() => {
       const theta = Math.random() * 2 * Math.PI;
       const phi = Math.acos(Math.random() * 2 - 1);
-      const r = 350 + Math.random() * 250; // Radius range for a thick shell
+      const r = 350 + Math.random() * 300; 
       return {
         x: r * Math.sin(phi) * Math.cos(theta),
         y: r * Math.sin(phi) * Math.sin(theta),
         z: r * Math.cos(phi),
         char: chars[Math.floor(Math.random() * chars.length)],
-        baseAlpha: 0.1 + Math.random() * 0.4
+        baseAlpha: 0.1 + Math.random() * 0.3
       };
     });
 
@@ -54,29 +54,25 @@ const ParticleGlobe = () => {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      angle += 0.0015; // Speed of rotation
+      angle += 0.0010; 
       const sinA = Math.sin(angle);
       const cosA = Math.cos(angle);
       const cx = canvas.width / 2;
-      // Shift center up slightly to match the video layout
-      const cy = canvas.height / 2 - 100; 
+      const cy = canvas.height / 2 - 50; 
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         
-        // Rotate around Y-axis
         const rotX = p.x * cosA - p.z * sinA;
         const rotZ = p.z * cosA + p.x * sinA;
         const rotY = p.y;
         
-        // Apply a slight static tilt on X-axis so we look down at it
-        const tiltX = -0.3;
+        const tiltX = -0.2;
         const sinTilt = Math.sin(tiltX);
         const cosTilt = Math.cos(tiltX);
         const finalY = rotY * cosTilt - rotZ * sinTilt;
         const finalZ = rotZ * cosTilt + rotY * sinTilt;
 
-        // 3D projection
         const fov = 1000;
         const zDepth = finalZ + fov;
         
@@ -85,8 +81,7 @@ const ParticleGlobe = () => {
           const x2d = cx + rotX * scale;
           const y2d = cy + finalY * scale;
           
-          // Opacity fades out in the distance
-          const alpha = Math.max(0, Math.min(1, p.baseAlpha * (scale - 0.4)));
+          const alpha = Math.max(0, Math.min(1, p.baseAlpha * (scale - 0.3)));
           
           ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
           ctx.fillText(p.char, x2d, y2d);
@@ -103,17 +98,18 @@ const ParticleGlobe = () => {
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef} 
-      className="absolute top-0 left-0 w-full h-[120vh] z-0 pointer-events-none" 
-      style={{ opacity: 0.6 }}
-    />
+    <div className="absolute top-0 left-0 w-full h-[120vh] overflow-hidden z-0 pointer-events-none">
+      <canvas 
+        ref={canvasRef} 
+        className="w-full h-full"
+        style={{ opacity: 0.7 }}
+      />
+    </div>
   );
 };
 
-
 // ----------------------------------------------------------------------
-// LANDING PAGE (Replicates the animations and layout)
+// LANDING PAGE
 // ----------------------------------------------------------------------
 function LandingPage() {
   const navigate = useNavigate();
@@ -121,53 +117,46 @@ function LandingPage() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
-  // Smooth fade transition for the changing word
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/health`).catch(() => {});
     
     const interval = setInterval(() => {
-      setFade(false); // trigger fade out
+      setFade(false); 
       setTimeout(() => {
         setCurrentWordIndex((prev) => (prev + 1) % heroWords.length);
-        setFade(true); // trigger fade in
-      }, 400); // 400ms transition time
-    }, 3000); // change word every 3 seconds
+        setFade(true); 
+      }, 400); 
+    }, 3000); 
 
     return () => clearInterval(interval);
   }, []);
 
-  const stats = [
-    { value: '0 days', label: 'saved on builds', sub: 'NETFLIX' },
-    { value: '98%', label: 'faster deployment', sub: 'STRIPE' },
-    { value: '300%', label: 'throughput increase', sub: 'LINEAR' },
-    { value: '6x', label: 'faster to ship', sub: 'NOTION' },
-    { value: '20 days', label: 'saved on QA', sub: 'VERCEL' },
-  ];
-
   return (
-    <div className="min-h-screen bg-white text-[#0a0a0a] font-sans antialiased flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-white text-[#0a0a0a] font-sans antialiased flex flex-col relative">
       
-      {/* 3D Background Canvas */}
       <ParticleGlobe />
 
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-zinc-100/50 py-4 transition-all">
-        <div className="w-[96%] max-w-[1400px] mx-auto flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="font-bold text-2xl tracking-tighter flex items-center">
-            AuditLens<span className="text-xs text-zinc-400 font-mono ml-1 align-top">™</span>
-          </button>
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md py-5">
+        <div className="w-[92%] max-w-[1200px] mx-auto flex items-center justify-between">
           
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-500">
+          <div className="flex-1">
+            <button onClick={() => navigate('/')} className="font-bold text-xl tracking-tight flex items-center">
+              AuditLens<span className="text-[10px] text-zinc-500 font-mono ml-1 align-top relative -top-1">™</span>
+            </button>
+          </div>
+          
+          <div className="flex-1 hidden md:flex justify-center items-center gap-10 text-[15px] font-medium text-zinc-500">
             <a href="#features" className="hover:text-black transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-black transition-colors">How it works</a>
             <a href="#developers" className="hover:text-black transition-colors">Developers</a>
             <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex-1 flex justify-end items-center gap-4">
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
-              <button onClick={() => navigate('/dashboard')} className="bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors">
+              <button onClick={() => navigate('/dashboard')} className="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-zinc-800 transition-colors">
                 Dashboard
               </button>
             </SignedIn>
@@ -176,8 +165,8 @@ function LandingPage() {
                 <button className="text-sm font-medium text-zinc-600 hover:text-black transition-colors mr-2">Sign in</button>
               </SignInButton>
               <SignInButton mode="modal">
-                <button className="bg-black text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors shadow-[0_0_15px_rgba(0,0,0,0.1)]">
-                  Start creating
+                <button className="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-zinc-800 transition-colors shadow-sm">
+                  Dashboard
                 </button>
               </SignInButton>
             </SignedOut>
@@ -186,82 +175,106 @@ function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <main className="relative z-10 pt-48 pb-24 w-[96%] max-w-[1400px] mx-auto flex flex-col items-center justify-center text-center">
-        <p className="text-zinc-500 font-mono text-sm tracking-[0.2em] uppercase mb-8">
-          The platform for modern teams
+      <main className="relative z-10 pt-48 pb-32 w-[92%] max-w-[1200px] mx-auto flex flex-col items-center justify-center text-center">
+        <p className="text-zinc-500 font-medium text-[11px] tracking-[0.3em] uppercase mb-10">
+          THE PLATFORM FOR MODERN TEAMS
         </p>
         
-        <h1 className="text-[5rem] md:text-[7.5rem] leading-[1.05] font-medium tracking-tighter mb-8 text-[#0a0a0a]">
+        <h1 className="text-[5rem] md:text-[8rem] leading-[1.05] font-medium tracking-tighter mb-8 text-[#0a0a0a]">
           The platform to <br />
           <span className={`inline-block min-w-[300px] transition-all duration-400 ease-in-out ${fade ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             {heroWords[currentWordIndex]}
           </span>
         </h1>
 
-        <p className="text-xl md:text-2xl text-zinc-500 max-w-3xl mx-auto mb-12 font-normal leading-relaxed">
+        <p className="text-xl md:text-[22px] text-zinc-500 max-w-3xl mx-auto mb-14 font-normal leading-relaxed">
           Your toolkit to stop configuring and start innovating. Securely build, deploy, and scale the best experiences.
         </p>
 
         <div className="flex items-center gap-4">
           <SignedIn>
-            <button onClick={() => navigate('/dashboard')} className="bg-black hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium text-lg transition-all shadow-xl hover:shadow-2xl">
+            <button onClick={() => navigate('/dashboard')} className="bg-black hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium text-[17px] transition-all shadow-xl hover:shadow-2xl">
               Go to Dashboard
             </button>
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="bg-black hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium text-lg transition-all shadow-xl hover:shadow-2xl">
-                Start free trial
+              <button className="bg-black hover:bg-zinc-800 text-white px-8 py-4 rounded-xl font-medium text-[17px] transition-all shadow-xl hover:shadow-2xl">
+                Go to Dashboard
               </button>
             </SignInButton>
           </SignedOut>
-          <button className="bg-white hover:bg-zinc-50 text-black border border-zinc-200 px-8 py-4 rounded-xl font-medium text-lg flex items-center gap-2 transition-all">
-            <Play className="w-5 h-5 fill-current" /> Watch demo
+          <button className="bg-white hover:bg-zinc-50 text-black border border-zinc-200 px-8 py-4 rounded-xl font-medium text-[17px] flex items-center gap-3 transition-all shadow-sm">
+            <Play className="w-4 h-4 fill-current" /> Watch demo
           </button>
         </div>
       </main>
 
       {/* Stats Section */}
-      <section className="relative z-10 w-full border-y border-zinc-100 bg-white/50 backdrop-blur-sm mt-12 py-10">
-        <div className="max-w-[1400px] mx-auto w-[96%] flex flex-wrap justify-between items-center gap-8">
-          {stats.map((stat, idx) => (
-            <div key={idx} className="flex flex-col items-center md:items-start text-center md:text-left">
-              <span className="text-4xl md:text-5xl font-medium tracking-tight mb-2">{stat.value}</span>
-              <span className="text-sm text-zinc-500 mb-1">{stat.label}</span>
-              <span className="text-[10px] font-mono text-zinc-400 tracking-wider uppercase">{stat.sub}</span>
-            </div>
-          ))}
+      <section className="relative z-10 w-full bg-white pt-24 pb-32">
+        <div className="max-w-[1200px] mx-auto w-[92%] flex flex-wrap justify-between items-start gap-8">
+          
+          <div className="flex flex-col items-start">
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">0 days</span>
+            <span className="text-[15px] text-zinc-500 mb-2">saved on builds</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">NETFLIX</span>
+          </div>
+
+          <div className="flex flex-col items-start">
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">98%</span>
+            <span className="text-[15px] text-zinc-500 mb-2">faster deployment</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">STRIPE</span>
+          </div>
+
+          <div className="flex flex-col items-start">
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">300%</span>
+            <span className="text-[15px] text-zinc-500 mb-2">throughput increase</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">LINEAR</span>
+          </div>
+
+          <div className="flex flex-col items-start">
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">6x</span>
+            <span className="text-[15px] text-zinc-500 mb-2">faster to ship</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">NOTION</span>
+          </div>
+
+          <div className="flex flex-col items-start">
+            <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">20 days</span>
+            <span className="text-[15px] text-zinc-500 mb-2">saved on QA</span>
+            <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">VERCEL</span>
+          </div>
+
         </div>
       </section>
 
-      {/* Capabilities Section Placeholder */}
-      <section className="relative z-10 w-full bg-white py-32">
-        <div className="max-w-[1400px] mx-auto w-[96%]">
-          <p className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-6">Capabilities</p>
-          <h2 className="text-5xl md:text-7xl font-medium tracking-tighter max-w-2xl mb-24 leading-tight">
+      {/* Capabilities Section */}
+      <section className="relative z-10 w-full bg-white pb-32 pt-10">
+        <div className="max-w-[1200px] mx-auto w-[92%]">
+          <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-8">CAPABILITIES</p>
+          <h2 className="text-5xl md:text-[5rem] leading-[1.05] font-medium tracking-tighter max-w-3xl mb-28">
             Everything you need.<br/>Nothing you don't.
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-16">
+          <div className="grid md:grid-cols-2 gap-x-20 gap-y-16">
             <div className="border-t border-zinc-200 pt-8">
-              <span className="text-sm font-mono text-zinc-400 mb-4 block">01</span>
-              <h3 className="text-3xl font-medium mb-4">Instant Deployment</h3>
-              <p className="text-zinc-500 text-lg leading-relaxed">Push to production in seconds. Our edge network ensures your applications load instantly, anywhere in the world.</p>
+              <span className="text-xs font-mono text-zinc-400 mb-5 block">01</span>
+              <h3 className="text-3xl font-medium mb-4 tracking-tight">Instant Deployment</h3>
+              <p className="text-zinc-500 text-[17px] leading-relaxed">Push to production in seconds. Our edge network ensures your applications load instantly, anywhere in the world.</p>
             </div>
             <div className="border-t border-zinc-200 pt-8">
-              <span className="text-sm font-mono text-zinc-400 mb-4 block">02</span>
-              <h3 className="text-3xl font-medium mb-4">AI-Native Workflows</h3>
-              <p className="text-zinc-500 text-lg leading-relaxed">Build intelligent applications with built-in AI capabilities. From inference to training, everything scales automatically.</p>
+              <span className="text-xs font-mono text-zinc-400 mb-5 block">02</span>
+              <h3 className="text-3xl font-medium mb-4 tracking-tight">AI-Native Workflows</h3>
+              <p className="text-zinc-500 text-[17px] leading-relaxed">Build intelligent applications with built-in AI capabilities. From inference to training, everything scales automatically.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Dark Section Placeholder */}
-      <section className="relative z-10 w-full bg-[#0a0a0a] text-white py-32">
-        <div className="max-w-[1400px] mx-auto w-[96%]">
-          <p className="text-sm font-mono text-zinc-500 uppercase tracking-widest mb-6">Process</p>
-          <h2 className="text-5xl md:text-7xl font-medium tracking-tighter max-w-2xl mb-24 leading-tight">
+      {/* Dark Process Section */}
+      <section className="relative z-10 w-full bg-[#0a0a0a] text-white py-40">
+        <div className="max-w-[1200px] mx-auto w-[92%]">
+          <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-10">PROCESS</p>
+          <h2 className="text-5xl md:text-[5.5rem] leading-[1.05] font-medium tracking-tighter max-w-4xl">
             Three steps.<br/>Infinite possibilities.
           </h2>
         </div>
@@ -272,7 +285,7 @@ function LandingPage() {
 }
 
 // ----------------------------------------------------------------------
-// DASHBOARD (Unchanged to protect your workflow)
+// DASHBOARD
 // ----------------------------------------------------------------------
 function Dashboard() {
   const { user } = useUser();
@@ -475,49 +488,49 @@ function Dashboard() {
       <aside className="w-72 bg-white border-r border-zinc-200 flex flex-col">
         <div className="p-8 border-b border-zinc-100">
           <button onClick={() => navigate('/')} className="font-bold text-3xl tracking-tighter flex items-center gap-1 text-left">
-            AuditLens<span className="text-sm text-zinc-400 font-mono align-top ml-1">™</span>
+            AuditLens<span className="text-[10px] text-zinc-400 font-mono align-top ml-1 relative -top-1">™</span>
           </button>
         </div>
         
         <nav className="flex-1 p-5 space-y-3">
           <button 
             onClick={() => setActiveTab('overview')}
-            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl font-medium transition-all text-lg ${
+            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl font-medium transition-all text-[15px] ${
               activeTab === 'overview' ? 'bg-zinc-100 text-zinc-950 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50'
             }`}
           >
-            <Activity className="w-6 h-6" /> Overview
+            <Activity className="w-5 h-5" /> Overview
           </button>
           <button 
             onClick={() => setActiveTab('scan-history')}
-            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl font-medium transition-all text-lg ${
+            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl font-medium transition-all text-[15px] ${
               activeTab === 'scan-history' ? 'bg-zinc-100 text-zinc-950 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50'
             }`}
           >
-            <Search className="w-6 h-6" /> Scan History
+            <Search className="w-5 h-5" /> Scan History
           </button>
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl font-medium transition-all text-lg ${
+            className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl font-medium transition-all text-[15px] ${
               activeTab === 'settings' ? 'bg-zinc-100 text-zinc-950 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50'
             }`}
           >
-            <Settings className="w-6 h-6" /> Settings
+            <Settings className="w-5 h-5" /> Settings
           </button>
         </nav>
 
         <div className="p-5 border-t border-zinc-200">
-          <button onClick={() => navigate('/')} className="w-full flex items-center gap-4 px-5 py-4 text-zinc-500 hover:bg-zinc-50 rounded-xl font-medium transition-colors text-lg">
-            <Home className="w-6 h-6" /> Back to Website
+          <button onClick={() => navigate('/')} className="w-full flex items-center gap-4 px-5 py-4 text-zinc-500 hover:bg-zinc-50 rounded-xl font-medium transition-colors text-[15px]">
+            <Home className="w-5 h-5" /> Back to Website
           </button>
         </div>
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0">
         <header className="bg-white border-b border-zinc-200 px-12 py-8 flex justify-between items-center sticky top-0 z-10">
-          <h1 className="text-3xl font-semibold tracking-tight">Welcome back, {user?.firstName || 'there'}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user?.firstName || 'there'}</h1>
           <div className="flex items-center gap-6">
-            <span className="text-lg text-zinc-500">{user?.primaryEmailAddress?.emailAddress}</span>
+            <span className="text-[15px] text-zinc-500">{user?.primaryEmailAddress?.emailAddress}</span>
             <UserButton afterSignOutUrl="/" />
           </div>
         </header>
