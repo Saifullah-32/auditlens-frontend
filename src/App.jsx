@@ -7,7 +7,9 @@ import {
   Activity, 
   Home, 
   Loader2,
-  Play
+  Play,
+  CheckCircle2,
+  Terminal
 } from 'lucide-react';
 import { useUser, SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
 import ScanHistory from './ScanHistory';
@@ -27,7 +29,6 @@ const ParticleGlobe = () => {
     
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
-      // Make canvas cover the hero section height
       canvas.height = window.innerHeight * 1.2; 
     };
     setCanvasSize();
@@ -113,10 +114,15 @@ const ParticleGlobe = () => {
 // ----------------------------------------------------------------------
 function LandingPage() {
   const navigate = useNavigate();
-  // Updated words to match QA auditing niche
   const heroWords = ['audit', 'validate', 'crawl', 'test'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
+
+  // Enable smooth scrolling for the whole page when the component mounts
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = 'smooth';
+    return () => { document.documentElement.style.scrollBehavior = 'auto'; }
+  }, []);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/health`).catch(() => {});
@@ -138,20 +144,21 @@ function LandingPage() {
       <ParticleGlobe />
 
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md py-5">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md py-5 border-b border-zinc-100/50">
         <div className="w-[92%] max-w-[1200px] mx-auto flex items-center justify-between">
           
           <div className="flex-1">
-            <button onClick={() => navigate('/')} className="font-bold text-xl tracking-tight flex items-center">
+            <button onClick={() => window.scrollTo(0, 0)} className="font-bold text-xl tracking-tight flex items-center">
               AuditLens<span className="text-[10px] text-zinc-500 font-mono ml-1 align-top relative -top-1">™</span>
             </button>
           </div>
           
+          {/* Added whitespace-nowrap to prevent line breaks in the navigation */}
           <div className="flex-1 hidden md:flex justify-center items-center gap-10 text-[15px] font-medium text-zinc-500">
-            <a href="#features" className="hover:text-black transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-black transition-colors">How it works</a>
-            <a href="#developers" className="hover:text-black transition-colors">Developers</a>
-            <a href="#pricing" className="hover:text-black transition-colors">Pricing</a>
+            <a href="#features" className="hover:text-black transition-colors whitespace-nowrap">Features</a>
+            <a href="#how-it-works" className="hover:text-black transition-colors whitespace-nowrap">How it works</a>
+            <a href="#developers" className="hover:text-black transition-colors whitespace-nowrap">Developers</a>
+            <a href="#pricing" className="hover:text-black transition-colors whitespace-nowrap">Pricing</a>
           </div>
 
           <div className="flex-1 flex justify-end items-center gap-4">
@@ -211,45 +218,39 @@ function LandingPage() {
         </div>
       </main>
 
-      {/* Stats Section - Updated for QA/Auditing */}
+      {/* Stats Section */}
       <section className="relative z-10 w-full bg-white pt-24 pb-32">
         <div className="max-w-[1200px] mx-auto w-[92%] flex flex-wrap justify-between items-start gap-8">
-          
           <div className="flex flex-col items-start">
             <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">100+</span>
             <span className="text-[15px] text-zinc-500 mb-2">hours saved on QA</span>
             <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">STARTUPS</span>
           </div>
-
           <div className="flex flex-col items-start">
             <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">10x</span>
             <span className="text-[15px] text-zinc-500 mb-2">faster bug detection</span>
             <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">AGENCIES</span>
           </div>
-
           <div className="flex flex-col items-start">
             <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">0</span>
             <span className="text-[15px] text-zinc-500 mb-2">configuration required</span>
             <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">PLUG & PLAY</span>
           </div>
-
           <div className="flex flex-col items-start">
             <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">99%</span>
             <span className="text-[15px] text-zinc-500 mb-2">automated test coverage</span>
             <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">ENTERPRISE</span>
           </div>
-
           <div className="flex flex-col items-start">
             <span className="text-5xl md:text-6xl font-medium tracking-tighter mb-3">24/7</span>
             <span className="text-[15px] text-zinc-500 mb-2">continuous monitoring</span>
             <span className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-medium">RELIABILITY</span>
           </div>
-
         </div>
       </section>
 
-      {/* Capabilities Section - Updated for QA/Auditing */}
-      <section className="relative z-10 w-full bg-white pb-32 pt-10">
+      {/* 1. FEATURES SECTION */}
+      <section id="features" className="relative z-10 w-full bg-white pb-32 pt-10 scroll-mt-24">
         <div className="max-w-[1200px] mx-auto w-[92%]">
           <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-8">CAPABILITIES</p>
           <h2 className="text-5xl md:text-[5rem] leading-[1.05] font-medium tracking-tighter max-w-3xl mb-28">
@@ -267,19 +268,151 @@ function LandingPage() {
               <h3 className="text-3xl font-medium mb-4 tracking-tight">Deep Functional Analysis</h3>
               <p className="text-zinc-500 text-[17px] leading-relaxed">Instantly detect broken links, console warnings, and structural errors. Get detailed, actionable reports to fix functional issues before they reach your end users.</p>
             </div>
+            <div className="border-t border-zinc-200 pt-8">
+              <span className="text-xs font-mono text-zinc-400 mb-5 block">03</span>
+              <h3 className="text-3xl font-medium mb-4 tracking-tight">Real-Time Reporting</h3>
+              <p className="text-zinc-500 text-[17px] leading-relaxed">Review issues via a beautiful dashboard UI. See exact error locations, severity levels, and page metrics in a centralized command center.</p>
+            </div>
+            <div className="border-t border-zinc-200 pt-8">
+              <span className="text-xs font-mono text-zinc-400 mb-5 block">04</span>
+              <h3 className="text-3xl font-medium mb-4 tracking-tight">Scalable Infrastructure</h3>
+              <p className="text-zinc-500 text-[17px] leading-relaxed">Whether you are auditing a 5-page landing site or a 5,000-page enterprise portal, our distributed edge-testing engine scales to meet your needs instantly.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Dark Process Section */}
-      <section className="relative z-10 w-full bg-[#0a0a0a] text-white py-40">
+      {/* 2. HOW IT WORKS SECTION */}
+      <section id="how-it-works" className="relative z-10 w-full bg-[#0a0a0a] text-white py-40 scroll-mt-24">
         <div className="max-w-[1200px] mx-auto w-[92%]">
           <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-10">PROCESS</p>
-          <h2 className="text-5xl md:text-[5.5rem] leading-[1.05] font-medium tracking-tighter max-w-4xl">
+          <h2 className="text-5xl md:text-[5.5rem] leading-[1.05] font-medium tracking-tighter max-w-4xl mb-24">
             Three steps.<br/>Zero bugs.
           </h2>
+
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="bg-[#111] border border-zinc-800 p-10 rounded-3xl">
+              <div className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center font-bold text-xl mb-8">1</div>
+              <h3 className="text-2xl font-medium mb-4">Input Target</h3>
+              <p className="text-zinc-400 text-[16px] leading-relaxed">Enter your staging or production URL. AuditLens immediately connects to your server environment.</p>
+            </div>
+            <div className="bg-[#111] border border-zinc-800 p-10 rounded-3xl">
+              <div className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center font-bold text-xl mb-8">2</div>
+              <h3 className="text-2xl font-medium mb-4">Autonomous Scan</h3>
+              <p className="text-zinc-400 text-[16px] leading-relaxed">Our engine crawls your site structure, testing components, mimicking user flows, and recording errors.</p>
+            </div>
+            <div className="bg-[#111] border border-zinc-800 p-10 rounded-3xl">
+              <div className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center font-bold text-xl mb-8">3</div>
+              <h3 className="text-2xl font-medium mb-4">Review & Fix</h3>
+              <p className="text-zinc-400 text-[16px] leading-relaxed">Access your generated report in the dashboard. Identify, prioritize, and crush bugs before deployment.</p>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* 3. DEVELOPERS SECTION */}
+      <section id="developers" className="relative z-10 w-full bg-zinc-50 py-32 border-t border-zinc-200 scroll-mt-24">
+        <div className="max-w-[1200px] mx-auto w-[92%] flex flex-col md:flex-row items-center gap-16">
+          <div className="flex-1">
+            <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-8">DEVELOPERS</p>
+            <h2 className="text-4xl md:text-6xl font-medium tracking-tighter mb-6">
+              Built by devs.<br/>For devs.
+            </h2>
+            <p className="text-zinc-500 text-[18px] leading-relaxed mb-8 max-w-md">
+              A thoughtfully designed API that gets out of your way. Ship faster with intuitive webhooks and CI/CD integrations that trigger audits automatically on every PR.
+            </p>
+            <ul className="space-y-4 mb-8">
+              <li className="flex items-center gap-3 text-zinc-700 font-medium"><CheckCircle2 className="w-5 h-5 text-black" /> Native TypeScript Support</li>
+              <li className="flex items-center gap-3 text-zinc-700 font-medium"><CheckCircle2 className="w-5 h-5 text-black" /> GitHub Actions Ready</li>
+              <li className="flex items-center gap-3 text-zinc-700 font-medium"><CheckCircle2 className="w-5 h-5 text-black" /> CLI for local environments</li>
+            </ul>
+          </div>
+          
+          <div className="flex-1 w-full bg-[#0a0a0a] rounded-2xl p-8 shadow-2xl border border-zinc-800">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span className="ml-4 text-xs font-mono text-zinc-500">terminal</span>
+            </div>
+            <pre className="text-zinc-300 font-mono text-sm leading-loose overflow-x-auto">
+              <code className="text-pink-400">npm</code> install @auditlens/cli -g<br/><br/>
+              <span className="text-zinc-500"># Run a scan directly from terminal</span><br/>
+              <code className="text-emerald-400">auditlens</code> scan https://localhost:3000<br/><br/>
+              <span className="text-zinc-500">{`> Mapping routes...`}</span><br/>
+              <span className="text-zinc-500">{`> Testing 42 pages...`}</span><br/>
+              <span className="text-blue-400">{`> Scan complete! 0 issues found.`}</span>
+            </pre>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. PRICING SECTION */}
+      <section id="pricing" className="relative z-10 w-full bg-white py-32 border-t border-zinc-200 scroll-mt-24">
+        <div className="max-w-[1200px] mx-auto w-[92%]">
+          <div className="text-center mb-20">
+            <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-[0.2em] mb-6">PRICING</p>
+            <h2 className="text-4xl md:text-6xl font-medium tracking-tighter">
+              Simple, transparent pricing
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Starter Plan */}
+            <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50">
+              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">01. Starter</span>
+              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$0</span><span className="text-zinc-500">/mo</span></div>
+              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">Perfect for individuals and small projects.</p>
+              <ul className="space-y-4 mb-8 text-sm text-zinc-700">
+                <li className="flex items-center gap-2">✓ Up to 3 projects</li>
+                <li className="flex items-center gap-2">✓ 100 pages per scan</li>
+                <li className="flex items-center gap-2">✓ Basic analytics</li>
+              </ul>
+              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors">Start free</button>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="border-2 border-black rounded-3xl p-10 bg-white relative shadow-xl">
+              <div className="absolute top-0 right-8 -translate-y-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
+              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">02. Pro</span>
+              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$49</span><span className="text-zinc-500">/mo</span></div>
+              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">For growing teams and businesses.</p>
+              <ul className="space-y-4 mb-8 text-sm text-zinc-700">
+                <li className="flex items-center gap-2">✓ Unlimited projects</li>
+                <li className="flex items-center gap-2">✓ 10,000 pages per scan</li>
+                <li className="flex items-center gap-2">✓ Team collaboration</li>
+                <li className="flex items-center gap-2">✓ API Access</li>
+              </ul>
+              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition-colors">Start trial</button>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50">
+              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">03. Enterprise</span>
+              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">Custom</span></div>
+              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">For large-scale operations and custom SLAs.</p>
+              <ul className="space-y-4 mb-8 text-sm text-zinc-700">
+                <li className="flex items-center gap-2">✓ Unlimited everything</li>
+                <li className="flex items-center gap-2">✓ CI/CD pipeline setup</li>
+                <li className="flex items-center gap-2">✓ 24/7 dedicated support</li>
+              </ul>
+              <button className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors">Contact sales</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-zinc-200 py-10">
+        <div className="max-w-[1200px] mx-auto w-[92%] flex justify-between items-center text-sm text-zinc-500">
+          <p>© 2026 AuditLens. All rights reserved.</p>
+          <div className="flex gap-6">
+            <span className="hover:text-black cursor-pointer">Twitter</span>
+            <span className="hover:text-black cursor-pointer">GitHub</span>
+            <span className="hover:text-black cursor-pointer">Terms</span>
+          </div>
+        </div>
+      </footer>
 
     </div>
   );
