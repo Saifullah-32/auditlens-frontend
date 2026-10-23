@@ -9,7 +9,11 @@ import {
   Loader2,
   Play,
   CheckCircle2,
-  Terminal
+  Terminal,
+  User as UserIcon,
+  CreditCard,
+  Bell,
+  Webhook
 } from 'lucide-react';
 import { useUser, SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
 import ScanHistory from './ScanHistory';
@@ -431,6 +435,10 @@ function Dashboard() {
   const [scanProgress, setScanProgress] = useState('');
   const [currentReport, setCurrentReport] = useState(null);
 
+  // Settings state
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [webhookUrl, setWebhookUrl] = useState('');
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/health`).catch(() => {});
   }, []);
@@ -603,11 +611,108 @@ function Dashboard() {
 
       case 'settings':
         return (
-          <div className="bg-white border border-zinc-200 rounded-[2rem] p-10 shadow-sm space-y-6">
-            <h2 className="text-3xl font-medium tracking-tight mb-2">Settings</h2>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-zinc-500">Email Address</label>
-              <input disabled type="text" value={user?.primaryEmailAddress?.emailAddress || ''} className="bg-zinc-50 border rounded-xl px-5 py-3 text-zinc-500 max-w-md" />
+          <div className="max-w-4xl space-y-8 pb-12">
+            <div>
+              <h2 className="text-3xl font-medium tracking-tight mb-2">Settings</h2>
+              <p className="text-zinc-500 text-lg">Manage your account preferences and API integrations.</p>
+            </div>
+
+            {/* Profile Information Section */}
+            <div className="bg-white border border-zinc-200 rounded-[2rem] p-10 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
+                <UserIcon className="w-6 h-6 text-zinc-700" />
+                <h3 className="text-xl font-medium text-zinc-950">Profile Information</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-zinc-500">Full Name</label>
+                  <input 
+                    disabled 
+                    type="text" 
+                    value={user?.fullName || 'Saifullah Abid'} 
+                    className="bg-zinc-50 border border-zinc-200 rounded-xl px-5 py-3 text-zinc-500 focus:outline-none" 
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-zinc-500">Email Address</label>
+                  <input 
+                    disabled 
+                    type="text" 
+                    value={user?.primaryEmailAddress?.emailAddress || 'saifullahabid32@gmail.com'} 
+                    className="bg-zinc-50 border border-zinc-200 rounded-xl px-5 py-3 text-zinc-500 focus:outline-none" 
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Subscription Section */}
+            <div className="bg-white border border-zinc-200 rounded-[2rem] p-10 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
+                <CreditCard className="w-6 h-6 text-zinc-700" />
+                <h3 className="text-xl font-medium text-zinc-950">Subscription & Billing</h3>
+              </div>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-zinc-50 border border-zinc-200 rounded-2xl p-6 gap-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <p className="text-lg font-bold text-zinc-900">Free Plan</p>
+                    <span className="bg-zinc-200 text-zinc-700 text-xs px-2.5 py-0.5 rounded-full font-semibold uppercase">Active</span>
+                  </div>
+                  <p className="text-zinc-500 text-sm">Limit: 1 test per 2 days. Standard bug detection is currently enabled.</p>
+                </div>
+                <button 
+                  onClick={() => navigate('/#pricing')} 
+                  className="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-zinc-800 transition-colors whitespace-nowrap shadow-sm"
+                >
+                  Upgrade Plan
+                </button>
+              </div>
+            </div>
+
+            {/* Notifications & Integrations Section */}
+            <div className="bg-white border border-zinc-200 rounded-[2rem] p-10 shadow-sm space-y-8">
+              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
+                <Bell className="w-6 h-6 text-zinc-700" />
+                <h3 className="text-xl font-medium text-zinc-950">Preferences & API</h3>
+              </div>
+              
+              {/* Notification Toggle */}
+              <div className="flex items-center justify-between pb-6 border-b border-zinc-100">
+                <div>
+                  <p className="font-medium text-zinc-900 text-[17px]">Email Notifications</p>
+                  <p className="text-sm text-zinc-500 mt-1">Receive an email summary when an autonomous scan completes.</p>
+                </div>
+                <button 
+                  onClick={() => setEmailNotifications(!emailNotifications)}
+                  className={`w-14 h-7 rounded-full transition-colors relative shadow-inner ${emailNotifications ? 'bg-black' : 'bg-zinc-200'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow-sm ${emailNotifications ? 'translate-x-8' : 'translate-x-1'}`}></div>
+                </button>
+              </div>
+
+              {/* Webhook URL Input */}
+              <div className="pt-2">
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <label className="font-medium text-zinc-900 text-[17px] flex items-center gap-2">
+                      <Webhook className="w-4 h-4 text-zinc-400" /> CI/CD Webhook URL
+                    </label>
+                    <p className="text-sm text-zinc-500 mt-1">Trigger downstream deployments or Slack alerts automatically.</p>
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-3 mt-2">
+                    <input 
+                      type="url" 
+                      value={webhookUrl}
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      placeholder="https://api.yourdomain.com/webhook"
+                      className="flex-1 bg-white border border-zinc-200 focus:ring-2 focus:ring-zinc-950 focus:border-zinc-950 focus:outline-none rounded-xl px-5 py-3 text-zinc-900 transition-shadow" 
+                    />
+                    <button className="bg-zinc-100 text-zinc-900 px-8 py-3 rounded-xl font-medium hover:bg-zinc-200 transition-colors border border-zinc-200 shadow-sm whitespace-nowrap">
+                      Save URL
+                    </button>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         );
@@ -662,9 +767,9 @@ function Dashboard() {
 
       <main className="flex-1 flex flex-col min-w-0">
         <header className="bg-white border-b border-zinc-200 px-12 py-8 flex justify-between items-center sticky top-0 z-10">
-          <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user?.firstName || 'there'}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {user?.firstName || 'Saifullah'}</h1>
           <div className="flex items-center gap-6">
-            <span className="text-[15px] text-zinc-500">{user?.primaryEmailAddress?.emailAddress}</span>
+            <span className="text-[15px] text-zinc-500">{user?.primaryEmailAddress?.emailAddress || 'saifullahabid32@gmail.com'}</span>
             <UserButton afterSignOutUrl="/" />
           </div>
         </header>
