@@ -153,7 +153,6 @@ function LandingPage() {
             </button>
           </div>
           
-          {/* Added whitespace-nowrap to prevent line breaks in the navigation */}
           <div className="flex-1 hidden md:flex justify-center items-center gap-10 text-[15px] font-medium text-zinc-500">
             <a href="#features" className="hover:text-black transition-colors whitespace-nowrap">Features</a>
             <a href="#how-it-works" className="hover:text-black transition-colors whitespace-nowrap">How it works</a>
@@ -358,45 +357,46 @@ function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Starter Plan */}
-            <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50">
-              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">01. Starter</span>
+            {/* Free Plan */}
+            <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50 flex flex-col">
+              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">01. Free</span>
               <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$0</span><span className="text-zinc-500">/mo</span></div>
-              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">Perfect for individuals and small projects.</p>
-              <ul className="space-y-4 mb-8 text-sm text-zinc-700">
-                <li className="flex items-center gap-2">✓ Up to 3 projects</li>
-                <li className="flex items-center gap-2">✓ 100 pages per scan</li>
-                <li className="flex items-center gap-2">✓ Basic analytics</li>
+              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">Perfect for individuals and exploring the platform.</p>
+              <ul className="space-y-4 mb-8 text-sm text-zinc-700 flex-1">
+                <li className="flex items-center gap-2">✓ 1 test per 2 days</li>
+                <li className="flex items-center gap-2">✓ Standard bug detection</li>
+                <li className="flex items-center gap-2">✓ Basic reporting</li>
               </ul>
-              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors">Start free</button>
+              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors mt-auto">Start free</button>
             </div>
 
             {/* Pro Plan */}
-            <div className="border-2 border-black rounded-3xl p-10 bg-white relative shadow-xl">
+            <div className="border-2 border-black rounded-3xl p-10 bg-white relative shadow-xl flex flex-col">
               <div className="absolute top-0 right-8 -translate-y-1/2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
               <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">02. Pro</span>
-              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$49</span><span className="text-zinc-500">/mo</span></div>
-              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">For growing teams and businesses.</p>
-              <ul className="space-y-4 mb-8 text-sm text-zinc-700">
-                <li className="flex items-center gap-2">✓ Unlimited projects</li>
-                <li className="flex items-center gap-2">✓ 10,000 pages per scan</li>
-                <li className="flex items-center gap-2">✓ Team collaboration</li>
-                <li className="flex items-center gap-2">✓ API Access</li>
+              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$4.99</span><span className="text-zinc-500">/mo</span></div>
+              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">For freelancers, growing teams, and small apps.</p>
+              <ul className="space-y-4 mb-8 text-sm text-zinc-700 flex-1">
+                <li className="flex items-center gap-2">✓ 3 tests per day</li>
+                <li className="flex items-center gap-2">✓ Deep functional analysis</li>
+                <li className="flex items-center gap-2">✓ Standard email support</li>
+                <li className="flex items-center gap-2">✓ Dashboard analytics</li>
               </ul>
-              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition-colors">Start trial</button>
+              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition-colors mt-auto">Upgrade to Pro</button>
             </div>
 
-            {/* Enterprise Plan */}
-            <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50">
-              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">03. Enterprise</span>
-              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">Custom</span></div>
-              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">For large-scale operations and custom SLAs.</p>
-              <ul className="space-y-4 mb-8 text-sm text-zinc-700">
-                <li className="flex items-center gap-2">✓ Unlimited everything</li>
-                <li className="flex items-center gap-2">✓ CI/CD pipeline setup</li>
+            {/* Pro Plus Plan */}
+            <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50 flex flex-col">
+              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">03. Pro Plus</span>
+              <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$8.99</span><span className="text-zinc-500">/mo</span></div>
+              <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">For agencies and rigorous testing workflows.</p>
+              <ul className="space-y-4 mb-8 text-sm text-zinc-700 flex-1">
+                <li className="flex items-center gap-2">✓ 5 tests per day</li>
+                <li className="flex items-center gap-2">✓ API & Webhook access</li>
                 <li className="flex items-center gap-2">✓ 24/7 dedicated support</li>
+                <li className="flex items-center gap-2">✓ Advanced exportable reports</li>
               </ul>
-              <button className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors">Contact sales</button>
+              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors mt-auto">Upgrade to Pro Plus</button>
             </div>
           </div>
         </div>
