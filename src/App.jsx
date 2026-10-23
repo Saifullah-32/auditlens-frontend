@@ -118,6 +118,7 @@ const ParticleGlobe = () => {
 // ----------------------------------------------------------------------
 function LandingPage() {
   const navigate = useNavigate();
+  const { user } = useUser();
   const heroWords = ['audit', 'validate', 'crawl', 'test'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
@@ -128,6 +129,7 @@ function LandingPage() {
     return () => { document.documentElement.style.scrollBehavior = 'auto'; }
   }, []);
 
+  // Ping the backend to keep Render awake
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/health`).catch(() => {});
     
@@ -141,6 +143,20 @@ function LandingPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Handle Lemon Squeezy Checkout dynamically
+  const handleCheckout = (baseUrl) => {
+    const checkoutUrl = new URL(baseUrl);
+    
+    if (user?.primaryEmailAddress?.emailAddress) {
+      checkoutUrl.searchParams.append('checkout[email]', user.primaryEmailAddress.emailAddress);
+    }
+    if (user?.id) {
+      checkoutUrl.searchParams.append('checkout[custom][user_id]', user.id);
+    }
+    
+    window.open(checkoutUrl.toString(), '_blank');
+  };
 
   return (
     <div className="min-h-screen bg-white text-[#0a0a0a] font-sans antialiased flex flex-col relative">
@@ -386,7 +402,12 @@ function LandingPage() {
                 <li className="flex items-center gap-2">✓ Standard email support</li>
                 <li className="flex items-center gap-2">✓ Dashboard analytics</li>
               </ul>
-              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition-colors mt-auto">Upgrade to Pro</button>
+              <button 
+                onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/17291fb5-edb2-4aaa-9827-7bccc3c622bf')} 
+                className="w-full py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition-colors mt-auto"
+              >
+                Upgrade to Pro
+              </button>
             </div>
 
             {/* Pro Plus Plan */}
@@ -400,7 +421,12 @@ function LandingPage() {
                 <li className="flex items-center gap-2">✓ 24/7 dedicated support</li>
                 <li className="flex items-center gap-2">✓ Advanced exportable reports</li>
               </ul>
-              <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors mt-auto">Upgrade to Pro Plus</button>
+              <button 
+                onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/f27f5c7c-f023-429b-924b-ef4f1895d2dd')} 
+                className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors mt-auto"
+              >
+                Upgrade to Pro Plus
+              </button>
             </div>
           </div>
         </div>
@@ -439,6 +465,7 @@ function Dashboard() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [webhookUrl, setWebhookUrl] = useState('');
 
+  // Ping the backend to keep Render awake
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/health`).catch(() => {});
   }, []);
@@ -505,6 +532,20 @@ function Dashboard() {
         console.error("Polling error:", err);
       }
     }, 3000);
+  };
+
+  // Handle Lemon Squeezy Checkout dynamically inside dashboard
+  const handleCheckout = (baseUrl) => {
+    const checkoutUrl = new URL(baseUrl);
+    
+    if (user?.primaryEmailAddress?.emailAddress) {
+      checkoutUrl.searchParams.append('checkout[email]', user.primaryEmailAddress.emailAddress);
+    }
+    if (user?.id) {
+      checkoutUrl.searchParams.append('checkout[custom][user_id]', user.id);
+    }
+    
+    window.open(checkoutUrl.toString(), '_blank');
   };
 
   const renderContent = () => {
@@ -651,7 +692,7 @@ function Dashboard() {
                 <CreditCard className="w-6 h-6 text-zinc-700" />
                 <h3 className="text-xl font-medium text-zinc-950">Subscription & Billing</h3>
               </div>
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-zinc-50 border border-zinc-200 rounded-2xl p-6 gap-6">
+              <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between bg-zinc-50 border border-zinc-200 rounded-2xl p-6 gap-6">
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <p className="text-lg font-bold text-zinc-900">Free Plan</p>
@@ -659,12 +700,20 @@ function Dashboard() {
                   </div>
                   <p className="text-zinc-500 text-sm">Limit: 1 test per 2 days. Standard bug detection is currently enabled.</p>
                 </div>
-                <button 
-                  onClick={() => navigate('/#pricing')} 
-                  className="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-zinc-800 transition-colors whitespace-nowrap shadow-sm"
-                >
-                  Upgrade Plan
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button 
+                    onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/17291fb5-edb2-4aaa-9827-7bccc3c622bf')} 
+                    className="bg-zinc-900 text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-black transition-colors whitespace-nowrap shadow-sm"
+                  >
+                    Upgrade to Pro
+                  </button>
+                  <button 
+                    onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/f27f5c7c-f023-429b-924b-ef4f1895d2dd')} 
+                    className="bg-white border border-zinc-200 text-zinc-900 px-6 py-3 rounded-xl text-sm font-medium hover:bg-zinc-50 transition-colors whitespace-nowrap shadow-sm"
+                  >
+                    Upgrade to Pro Plus
+                  </button>
+                </div>
               </div>
             </div>
 
