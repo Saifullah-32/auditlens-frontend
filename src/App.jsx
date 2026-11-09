@@ -16,6 +16,7 @@ import {
   Webhook
 } from 'lucide-react';
 import { useUser, SignInButton, UserButton, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { initializePaddle } from '@paddle/paddle-js'; // Added Paddle import
 import ScanHistory from './ScanHistory';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://auditlens-backend-v8hp.onrender.com';
@@ -122,6 +123,21 @@ function LandingPage() {
   const heroWords = ['audit', 'validate', 'crawl', 'test'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
+  
+  // Paddle state
+  const [paddle, setPaddle] = useState(null);
+
+  // Initialize Paddle on mount
+  useEffect(() => {
+    initializePaddle({
+      environment: 'sandbox',
+      token: 'test_37e414d8717696a8b4cc1e6b784', // Your Paddle Sandbox Token
+    }).then((paddleInstance) => {
+      if (paddleInstance) {
+        setPaddle(paddleInstance);
+      }
+    });
+  }, []);
 
   // Enable smooth scrolling for the whole page when the component mounts
   useEffect(() => {
@@ -144,18 +160,31 @@ function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Handle Lemon Squeezy Checkout dynamically
-  const handleCheckout = (baseUrl) => {
-    const checkoutUrl = new URL(baseUrl);
-    
-    if (user?.primaryEmailAddress?.emailAddress) {
-      checkoutUrl.searchParams.append('checkout[email]', user.primaryEmailAddress.emailAddress);
+  // Updated Paddle Checkout handler
+  const handleCheckout = (priceId) => {
+    if (!paddle) {
+      console.error('Paddle not initialized yet');
+      return;
     }
-    if (user?.id) {
-      checkoutUrl.searchParams.append('checkout[custom][user_id]', user.id);
+    if (!user) {
+      alert('Please sign in first to upgrade your account.');
+      return;
     }
-    
-    window.open(checkoutUrl.toString(), '_blank');
+
+    paddle.Checkout.open({
+      items: [
+        {
+          priceId: priceId,
+          quantity: 1,
+        },
+      ],
+      customer: {
+        email: user.primaryEmailAddress?.emailAddress,
+      },
+      customData: {
+        userId: user.id, // Passes Clerk ID to your backend webhook
+      }
+    });
   };
 
   return (
@@ -379,7 +408,7 @@ function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Free Plan */}
             <div className="border border-zinc-200 rounded-3xl p-10 hover:border-zinc-300 transition-colors bg-zinc-50 flex flex-col">
-              <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">01. Free</span>
+               <span className="text-xs font-mono text-zinc-400 uppercase block mb-4">01. Free</span>
               <div className="mb-6"><span className="text-5xl font-medium tracking-tighter">$0</span><span className="text-zinc-500">/mo</span></div>
               <p className="text-sm text-zinc-500 mb-8 border-b border-zinc-200 pb-8">Perfect for individuals and exploring the platform.</p>
               <ul className="space-y-4 mb-8 text-sm text-zinc-700 flex-1">
@@ -403,7 +432,7 @@ function LandingPage() {
                 <li className="flex items-center gap-2">✓ Dashboard analytics</li>
               </ul>
               <button 
-                onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/17291fb5-edb2-4aaa-9827-7bccc3c622bf')} 
+                onClick={() => handleCheckout('pri_01m70cgc6mfb26dp5zsgq43enh')} 
                 className="w-full py-3 rounded-xl bg-black text-white font-medium hover:bg-zinc-800 transition-colors mt-auto"
               >
                 Upgrade to Pro
@@ -422,7 +451,7 @@ function LandingPage() {
                 <li className="flex items-center gap-2">✓ Advanced exportable reports</li>
               </ul>
               <button 
-                onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/f27f5c7c-f023-429b-924b-ef4f1895d2dd')} 
+                onClick={() => handleCheckout('pri_01m70crpxz3y2eyycme3tabzfw')} 
                 className="w-full py-3 rounded-xl border border-zinc-200 font-medium hover:bg-zinc-100 transition-colors mt-auto"
               >
                 Upgrade to Pro Plus
@@ -464,6 +493,21 @@ function Dashboard() {
   // Settings state
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [webhookUrl, setWebhookUrl] = useState('');
+
+  // Paddle state
+  const [paddle, setPaddle] = useState(null);
+
+  // Initialize Paddle on mount
+  useEffect(() => {
+    initializePaddle({
+      environment: 'sandbox',
+      token: 'test_37e414d8717696a8b4cc1e6b784', // Your Paddle Sandbox Token
+    }).then((paddleInstance) => {
+      if (paddleInstance) {
+        setPaddle(paddleInstance);
+      }
+    });
+  }, []);
 
   // Ping the backend to keep Render awake
   useEffect(() => {
@@ -534,18 +578,31 @@ function Dashboard() {
     }, 3000);
   };
 
-  // Handle Lemon Squeezy Checkout dynamically inside dashboard
-  const handleCheckout = (baseUrl) => {
-    const checkoutUrl = new URL(baseUrl);
-    
-    if (user?.primaryEmailAddress?.emailAddress) {
-      checkoutUrl.searchParams.append('checkout[email]', user.primaryEmailAddress.emailAddress);
+  // Updated Paddle Checkout handler for Dashboard
+  const handleCheckout = (priceId) => {
+    if (!paddle) {
+      console.error('Paddle not initialized yet');
+      return;
     }
-    if (user?.id) {
-      checkoutUrl.searchParams.append('checkout[custom][user_id]', user.id);
+    if (!user) {
+      alert('Please log in to subscribe.');
+      return;
     }
-    
-    window.open(checkoutUrl.toString(), '_blank');
+
+    paddle.Checkout.open({
+      items: [
+        {
+          priceId: priceId,
+          quantity: 1,
+        },
+      ],
+      customer: {
+        email: user.primaryEmailAddress?.emailAddress,
+      },
+      customData: {
+        userId: user.id, // Passes Clerk ID to your backend webhook
+      }
+    });
   };
 
   const renderContent = () => {
@@ -702,13 +759,13 @@ function Dashboard() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button 
-                    onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/17291fb5-edb2-4aaa-9827-7bccc3c622bf')} 
+                    onClick={() => handleCheckout('pri_01m70cgc6mfb26dp5zsgq43enh')} 
                     className="bg-zinc-900 text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-black transition-colors whitespace-nowrap shadow-sm"
                   >
                     Upgrade to Pro
                   </button>
                   <button 
-                    onClick={() => handleCheckout('https://audit-iq.lemonsqueezy.com/checkout/buy/f27f5c7c-f023-429b-924b-ef4f1895d2dd')} 
+                    onClick={() => handleCheckout('pri_01m70crpxz3y2eyycme3tabzfw')} 
                     className="bg-white border border-zinc-200 text-zinc-900 px-6 py-3 rounded-xl text-sm font-medium hover:bg-zinc-50 transition-colors whitespace-nowrap shadow-sm"
                   >
                     Upgrade to Pro Plus
